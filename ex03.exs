@@ -59,23 +59,36 @@ defmodule Ex03 do
 
   """
   
+  # spawn a chunk-mapping process
   def spawn_map_process(chunk, func) do
     spawn_link(__MODULE__, :map_chunk, [self(), chunk, func])
   end
   
+  # (spawned) function to send the mapped chunk to the caller
   def map_chunk(caller, chunk, func) do
     send caller, {self(), Enum.map(chunk, func)}
   end
   
+  # wait to receive the mapped chunk
   def recv_mapped_chunk(pid) do
     receive do
       {^pid, mapped} -> mapped
     end
   end
   
+  # divide the collection into chunks for each process
+  def divide_collection(collection, process_count) do
+    chunk_size = 
+      Enum.count(collection) / process_count
+        |> Float.ceil()
+        |> trunc() # convert to integer
+    Enum.chunk_every(collection, chunk_size)
+  end
+  
+  # parallel map function
   def pmap(collection, process_count, function) do
     collection
-      |> Enum.chunk_every(process_count)
+      |> divide_collection(process_count)
       |> Enum.map(&spawn_map_process(&1, function))
       |> Enum.map(&recv_mapped_chunk(&1))
       |> Enum.concat()
@@ -113,6 +126,7 @@ defmodule TestEx03 do
     
     assert result2 == result1
     assert time2 < time1 * 0.8
+    
   end
   
 end
