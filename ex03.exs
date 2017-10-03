@@ -58,9 +58,27 @@ defmodule Ex03 do
         5 elegant use of language features or libraries
 
   """
-
+  
+  def spawn_map_process(chunk, func) do
+    spawn_link(__MODULE__, :map_chunk, [self(), chunk, func])
+  end
+  
+  def map_chunk(caller, chunk, func) do
+    send caller, {self(), Enum.map(chunk, func)}
+  end
+  
+  def recv_mapped_chunk(pid) do
+    receive do
+      {^pid, mapped} -> mapped
+    end
+  end
+  
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection
+      |> Enum.chunk_every(process_count)
+      |> Enum.map(fn (chunk) -> spawn_map_process(chunk, function) end)
+      |> Enum.map(fn (pid) -> recv_mapped_chunk(pid) end)
+      |> Enum.concat()
   end
 
 end
@@ -89,10 +107,10 @@ defmodule TestEx03 do
     range = 1..1_000_000
     # random calculation to burn some cpu
     calc  = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
-
+    
     { time1, result1 } = :timer.tc(fn -> pmap(range, 1, calc) end)
     { time2, result2 } = :timer.tc(fn -> pmap(range, 2, calc) end)
-
+    
     assert result2 == result1
     assert time2 < time1 * 0.8
   end
