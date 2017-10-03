@@ -76,8 +76,8 @@ defmodule Ex03 do
   def pmap(collection, process_count, function) do
     collection
       |> Enum.chunk_every(process_count)
-      |> Enum.map(fn (chunk) -> spawn_map_process(chunk, function) end)
-      |> Enum.map(fn (pid) -> recv_mapped_chunk(pid) end)
+      |> Enum.map(&spawn_map_process(&1, function))
+      |> Enum.map(&recv_mapped_chunk(&1))
       |> Enum.concat()
   end
 

@@ -8,7 +8,7 @@ defmodule Ex02 do
   end
   
   def next_value(agent) do
-    Agent.get_and_update(agent, &{&1, &1 + 1})
+    Agent.get_and_update(agent, &{&1, &1+1})
   end
   
   
@@ -18,7 +18,7 @@ defmodule Ex02 do
   end
   
   def global_next_value() do
-    Agent.get_and_update(__MODULE__, &{&1, &1 + 1})
+    Agent.get_and_update(__MODULE__, &{&1, &1+1})
   end
   
 end
@@ -55,10 +55,10 @@ defmodule Test do
   test "counter using an agent" do
     { :ok, counter } = Agent.start_link(fn -> 0 end)
   
-    value   = Agent.get_and_update(counter, &{&1, &1 + 1})
+    value   = Agent.get_and_update(counter, &{&1, &1+1})
     assert value == 0
   
-    value   = Agent.get_and_update(counter, &{&1, &1 + 1})
+    value   = Agent.get_and_update(counter, &{&1, &1+1})
     assert value == 1
   end
 
