@@ -31,10 +31,10 @@ defmodule Ex01 do
     spawn __MODULE__, :counter, [value]
   end
   
-  def next_value(pid) do
-    send pid, { :next, self() }
+  def next_value(agent) do
+    send agent, {:next, self()}
     receive do
-      { :next_is, value } ->
+      {:next_is, value} ->
         value
     end
   end
@@ -60,13 +60,13 @@ defmodule Test do
 
   test "basic message interface" do
     count = spawn Ex01, :counter, []
-    send count, { :next, self }
+    send count, { :next, self() }
     receive do
       { :next_is, value } ->
         assert value == 0
     end
   
-    send count, { :next, self }
+    send count, { :next, self() }
     receive do
       { :next_is, value } ->
         assert value == 1
