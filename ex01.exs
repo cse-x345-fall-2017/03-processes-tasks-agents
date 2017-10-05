@@ -32,12 +32,10 @@ defmodule Ex01 do
       {:next_is, value} ->
         value
     end
-    1
   end
 
   def new_counter(value \\ 0) do
-    pid = spawn Ex01, :counter, [value]
-    pid
+    spawn(fn -> counter(value) end)
   end
 
   def counter(value \\ 0) do
