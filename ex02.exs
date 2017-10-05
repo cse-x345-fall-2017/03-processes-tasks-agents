@@ -1,6 +1,23 @@
 
 defmodule Ex02 do
+  @name __MODULE__
+  def new_counter(value \\ 0) do
+    {:ok, counter} = Agent.start_link(fn -> value end)
+    counter
+  end
 
+  def next_value(counter) do
+    Agent.get_and_update(counter, &{&1, &1+1})
+  end
+
+  def new_global_counter(value \\ 0) do
+    {:ok, counter} = Agent.start_link(fn -> value end, name: @name)
+    counter
+  end
+
+  def global_next_value do
+    Agent.get_and_update(@name, &{&1, &1+1})
+  end
 end
 
 ExUnit.start()
@@ -48,11 +65,11 @@ defmodule Test do
   top of this file to make those tests run.
   """
 
-  # test "higher level API interface" do
-  #   count = Ex02.new_counter(5)
-  #   assert  Ex02.next_value(count) == 5
-  #   assert  Ex02.next_value(count) == 6
-  # end
+  test "higher level API interface" do
+    count = Ex02.new_counter(5)
+    assert  Ex02.next_value(count) == 5
+    assert  Ex02.next_value(count) == 6
+  end
 
   @doc """
   Last (for this exercise), we'll create a global counter by adding
@@ -61,12 +78,12 @@ defmodule Test do
   that agent into calls to `global_next_value`?
   """
 
-  # test "global counter" do
-  #   Ex02.new_global_counter
-  #   assert Ex02.global_next_value == 0
-  #   assert Ex02.global_next_value == 1
-  #   assert Ex02.global_next_value == 2
-  # end
+  test "global counter" do
+    Ex02.new_global_counter
+    assert Ex02.global_next_value == 0
+    assert Ex02.global_next_value == 1
+    assert Ex02.global_next_value == 2
+  end
 end
 
 
