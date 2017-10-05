@@ -1,4 +1,4 @@
-defmodule Ex01.Impt do
+defmodule Ex01 do
 
   @moduledoc """
 
@@ -26,15 +26,25 @@ defmodule Ex01.Impt do
           blank lines, vertical alignment
   """
 
-  def counter(value \\ 0) do
-    Task.start_link(fn -> loop_ctr(value) end)
+  def next_value(counter) do
+    send counter, {:next, self()}
+    receive do
+      {:next_is, value} ->
+        value
+    end
+    1
   end
 
-  defp loop_ctr(value) do
+  def new_counter(value \\ 0) do
+    pid = spawn Ex01, :counter, [value]
+    pid
+  end
+
+  def counter(value \\ 0) do
     receive do
       {:next, from} ->
-        send from. {:next_is, value}
-        loop(value + 1)
+        send from, {:next_is, value}
+        counter(value + 1)
     end
   end
 
@@ -51,13 +61,13 @@ defmodule Test do
 
    test "basic message interface" do
      count = spawn Ex01, :counter, []
-     send count, { :next, self }
+     send count, { :next, self() }
      receive do
        { :next_is, value } ->
          assert value == 0
      end
 
-     send count, { :next, self }
+     send count, { :next, self() }
      receive do
        { :next_is, value } ->
          assert value == 1
@@ -68,10 +78,10 @@ defmodule Test do
   # Now we add two new functions to Ex01 that wrap the use of
   # that counter function, making the overall API cleaner
 
-  # test "higher level API interface" do
-  #   count = Ex01.new_counter(5)
-  #   assert  Ex01.next_value(count) == 5
-  #   assert  Ex01.next_value(count) == 6
-  # end
+   test "higher level API interface" do
+     count = Ex01.new_counter(5)
+     assert  Ex01.next_value(count) == 5
+     assert  Ex01.next_value(count) == 6
+   end
 
 end
