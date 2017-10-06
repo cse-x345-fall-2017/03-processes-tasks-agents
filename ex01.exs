@@ -36,11 +36,11 @@ defmodule Ex01 do
   end
 
   def new_counter(value) do
-    count = spawn Ex01, :counter, [value]
+    spawn Ex01, :counter, [value]
   end
 
   def next_value(count) do
-    send count, {:next, self}
+    send count, {:next, self()}
     receive do
       {:next_is, value} ->
       value
@@ -60,13 +60,13 @@ defmodule Test do
 
   test "basic message interface" do
     count = spawn Ex01, :counter, []
-    send count, { :next, self }
+    send count, { :next, self() }
     receive do
       { :next_is, value } ->
         assert value == 0
     end
 
-    send count, { :next, self }
+    send count, { :next, self() }
     receive do
       { :next_is, value } ->
         assert value == 1
