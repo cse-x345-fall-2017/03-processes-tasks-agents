@@ -81,7 +81,6 @@ defmodule Test do
     assert  Ex01.next_value(count) == 5
     assert  Ex01.next_value(count) == 6
   end
-  
 
 end
 
