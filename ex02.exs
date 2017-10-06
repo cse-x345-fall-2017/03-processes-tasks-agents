@@ -1,6 +1,10 @@
 
 defmodule Ex02 do
   @name __MODULE__
+
+  #####
+  # Higher level API
+
   def new_counter(value \\ 0) do
     {:ok, counter} = Agent.start_link(fn -> value end)
     counter
@@ -9,6 +13,9 @@ defmodule Ex02 do
   def next_value(counter) do
     Agent.get_and_update(counter, &{&1, &1+1})
   end
+
+  #####
+  # Global counter
 
   def new_global_counter(value \\ 0) do
     {:ok, counter} = Agent.start_link(fn -> value end, name: @name)
