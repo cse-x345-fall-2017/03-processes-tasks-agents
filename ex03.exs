@@ -117,7 +117,7 @@ defmodule TestEx03 do
   # The following test will only pass if your computer has
   # multiple processors.
   test "pmap actually reduces time" do
-    range = 1..1_000_000
+    range = 1..10_000_000
     # random calculation to burn some cpu
     calc  = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
     
