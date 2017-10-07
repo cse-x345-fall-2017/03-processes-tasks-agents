@@ -9,8 +9,8 @@ defmodule Ex02 do
     Agent.get_and_update(counter, Counter, :next_value, [])
   end
   
-  def new_global_counter() do
-    {:ok, counter} = Agent.start_link(&Counter.new/0, name: Counter)
+  def new_global_counter(value \\ 0) do
+    {:ok, counter} = Agent.start_link(Counter, :new, [value], name: Counter)
     counter
   end
 
