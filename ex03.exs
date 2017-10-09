@@ -59,11 +59,15 @@ defmodule Ex03 do
 
   """
 
-  def pmap(collection, process_count, function) do
+  def split(collection, n_splits) do
     len = Enum.count collection
-    chunk_size = div(len, process_count)
+    chunk_size = div(len, n_splits)
+    Enum.chunk_every(collection, chunk_size)
+  end
+
+  def pmap(collection, process_count, function) do
     collection
-    |> Enum.chunk_every(chunk_size)
+    |> split(process_count)
     |> Enum.map(fn chunk -> Task.async(Enum, :map, [chunk, function]) end)
     |> Enum.map(&Task.await/1)
     |> Enum.concat
