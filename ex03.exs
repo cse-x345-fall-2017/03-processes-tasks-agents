@@ -58,9 +58,33 @@ defmodule Ex03 do
         5 elegant use of language features or libraries
 
   """
-
+  
+  # spawn a chunk-mapping process
+  def spawn_map_process(chunk, func) do
+    Task.async(Enum, :map, [chunk, func])
+  end
+  
+  # wait to receive the mapped chunk
+  def recv_mapped_chunk(pid) do
+    Task.await(pid, :infinity)
+  end
+  
+  # divide the collection into chunks for each process
+  def divide_collection(collection, process_count) do
+    chunk_size = 
+      Enum.count(collection) / process_count
+        |> Float.ceil()
+        |> trunc() # convert to integer
+    Enum.chunk_every(collection, chunk_size)
+  end
+  
+  # parallel map function
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection
+      |> divide_collection(process_count)
+      |> Enum.map(&spawn_map_process(&1, function))
+      |> Enum.map(&recv_mapped_chunk(&1))
+      |> Enum.concat()
   end
 
 end
@@ -86,13 +110,13 @@ defmodule TestEx03 do
   # The following test will only pass if your computer has
   # multiple processors.
   test "pmap actually reduces time" do
-    range = 1..1_000_000
+    range = 1..10_000_000
     # random calculation to burn some cpu
     calc  = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
-
+    
     { time1, result1 } = :timer.tc(fn -> pmap(range, 1, calc) end)
     { time2, result2 } = :timer.tc(fn -> pmap(range, 2, calc) end)
-
+    
     assert result2 == result1
     assert time2 < time1 * 0.8
   end
