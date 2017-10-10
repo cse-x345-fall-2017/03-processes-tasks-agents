@@ -60,9 +60,19 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    ceil_div = fn dividend, divisor -> Integer.floor_div(dividend, divisor) + 1 end
+
+    chunk_size = Enum.count(collection) |> ceil_div.(process_count)
+
+    chunks = Enum.chunk_every(collection, chunk_size)
+    assign(chunks, function) |> Enum.concat()
   end
 
+  def assign( [ chunk | rest ], function) do
+    map_current = Task.async( fn -> Enum.map(chunk, function) end )
+    [ Task.await(map_current) | assign(rest, function) ]
+  end
+  def assign([], _function), do: []
 end
 
 
