@@ -4,18 +4,19 @@ defmodule Ex02 do
       {:ok, counter} = Agent.start_link(Counter, :new, [value])
       counter
   end
-  
+
   def next_value(counter) do
     Agent.get_and_update(counter, Counter, :next_value, [])
   end
-  
+
+  @me TheCounter
   def new_global_counter(value \\ 0) do
-    {:ok, counter} = Agent.start_link(Counter, :new, [value], name: Counter)
+    {:ok, counter} = Agent.start_link(Counter, :new, [value], name: @me)
     counter
   end
 
   def global_next_value() do
-    Agent.get_and_update(Counter, &Counter.next_value/1)
+    Agent.get_and_update(@me, &Counter.next_value/1)
   end
 end
 
