@@ -60,10 +60,12 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    size = div(Enum.count(collection), process_count)
+    size = Enum.count(collection) / process_count
+      |> Float.ceil()
+      |> trunc()
 
     collection 
-    |> Enum.chunk(size,size)
+    |> Enum.chunk(size,size, [])
     |> task_create(process_count - 1, function, [])
     |> task_await(process_count - 1, Enum.drop_every(collection,1))
 
@@ -72,7 +74,7 @@ defmodule Ex03 do
   defp task_create(_, -1, _, pids), do: pids
   defp task_create(divided, part_count, function, pids) do
     part = Enum.fetch!(divided,part_count)
-    
+
     added = pids
     |> Enum.concat([Task.async(fn -> Enum.map(part, function) end)])
     
