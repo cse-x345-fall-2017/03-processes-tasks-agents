@@ -60,7 +60,31 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+
+    me = self()
+    chunk_size = div( Enum.count(collection)-1, process_count ) + 1
+
+    collection
+    |> Enum.chunk(chunk_size, chunk_size, [])
+    |> Enum.map(fn x -> helper(me, x, function) end)
+    |> Enum.map(fn (pid) ->
+      receive do
+        { ^pid, result } -> result     #understood the importance of ^ here :)
+      end
+    end)
+    |> Enum.concat
+
+  end
+
+  defp helper(me, x, function) do
+
+    spawn_link(fn ->
+      send(me, { self(),
+        Enum.map(x, fn (elem) ->
+          function.(elem)
+        end) })
+    end)
+
   end
 
 end
