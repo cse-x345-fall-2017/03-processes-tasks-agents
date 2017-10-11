@@ -27,7 +27,24 @@ defmodule Ex01 do
           blank lines, vertical alignment
   """
   
+  def new_counter(init_value) do
+    spawn Ex01, :counter, [ init_value ]
+  end
+
+  def next_value(counter_pid) do
+    send counter_pid, { :next, self() }
+    receive do
+      { :next_is, value } ->
+        value
+    end
+  end
+  
   def counter(value \\ 0) do
+    receive do
+      { :next, from } ->
+        send from, { :next_is, value }
+    end
+    counter(value+1)
   end
 
 end
