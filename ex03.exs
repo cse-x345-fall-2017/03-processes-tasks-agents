@@ -60,9 +60,33 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    each = div(Enum.count(collection), process_count)
+
+    collection 
+    |> Enum.chunk(each,each)
+    |> task_format(process_count - 1, function, [])
+    |> task_await(process_count - 1, Enum.drop_every(collection,1))
+
   end
 
+  defp task_format(_, -1, _, pids), do: pids
+  defp task_format(divided, part_count, function, pids) do
+    added = Enum.concat(pids, task_create(Enum.fetch!(divided,part_count),function))
+    
+    task_format(divided, part_count - 1, function, added)
+  end
+
+  defp task_create(part, function) do
+    [Task.async(fn -> Enum.map(part, function) end)]
+  end
+
+  defp task_await(_, -1, done), do: done
+  defp task_await(pids, itr, fill) do
+    added = fill
+    |> Enum.concat(Task.await(Enum.fetch!(pids,itr)))
+
+    task_await(pids, itr - 1, added)
+  end
 end
 
 
