@@ -58,10 +58,52 @@ defmodule Ex03 do
         5 elegant use of language features or libraries
 
   """
-
+  # Implementation using Tasks
   def pmap(collection, process_count, function) do
-    « your code here »
+
+    collection
+    |> Enum.chunk_every(get_chunk_size(collection, process_count))
+    |> Enum.map(&create_task(&1, function))
+    |> Enum.map(&Task.await/1)
+    |> Enum.concat
+
   end
+
+  # Another Implementation using spawn_link
+#  def pmap(collection, process_count, function) do
+#    me = self()
+#
+#    collection
+#    |> Enum.chunk_every(get_chunk_size(collection, process_count))
+#    |> Enum.map(&create_processes(&1, me, function))
+#    |> Enum.map(&get_result(&1))
+#    |> Enum.concat
+#
+#  end
+
+  # Private Helper functions
+
+  defp create_task(chunk, function) do
+    Task.async(Enum, :map, [ chunk, function ])
+  end
+
+  defp get_chunk_size(collection, process_count) do
+    div( Enum.count(collection)-1, process_count ) + 1
+  end
+
+  # Helper function for spawnlink
+#  defp get_result(pid) do
+#    receive do
+#      { ^pid, result } -> result
+#    end
+#  end
+#
+#  defp create_processes(chunk, pid, function) do
+#    spawn_link(fn ->
+#      send(pid, { self(),
+#        Enum.map(chunk, &(function.(&1))) })
+#    end)
+#  end
 
 end
 
