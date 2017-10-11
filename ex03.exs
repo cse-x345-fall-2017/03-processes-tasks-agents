@@ -60,7 +60,6 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-
     me = self()
 
     collection
