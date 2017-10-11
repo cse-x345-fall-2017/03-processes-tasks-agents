@@ -62,29 +62,32 @@ defmodule Ex03 do
   def pmap(collection, process_count, function) do
 
     me = self()
-    chunk_size = div( Enum.count(collection)-1, process_count ) + 1
 
     collection
-    |> Enum.chunk(chunk_size, chunk_size, [])
-    |> Enum.map(fn x -> helper(me, x, function) end)
-    |> Enum.map(fn (pid) ->
-      receive do
-        { ^pid, result } -> result     #understood the importance of ^ here :)
-      end
-    end)
+    |> Enum.chunk_every(get_chunk_size(collection, process_count))
+    |> Enum.map(&create_processes(&1, me, function))
+    |> Enum.map(&get_result(&1))
     |> Enum.concat
 
   end
 
-  defp helper(me, x, function) do
+  #Private Helper functions
 
+  defp get_result(pid) do
+    receive do
+      { ^pid, result } -> result
+    end
+  end
+
+  defp get_chunk_size(collection, process_count) do
+    div( Enum.count(collection)-1, process_count ) + 1
+  end
+
+  defp create_processes(chunk, pid, function) do
     spawn_link(fn ->
-      send(me, { self(),
-        Enum.map(x, fn (elem) ->
-          function.(elem)
-        end) })
+      send(pid, { self(),
+        Enum.map(chunk, &(function.(&1))) })
     end)
-
   end
 
 end
