@@ -60,9 +60,16 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    num_chunks = collection |>
+                 Enum.count |>
+                 div(process_count)
+    
+    collection 
+    |> Enum.chunk_every(num_chunks) 
+    |> Enum.map(&(Task.async(fn -> Enum.map(&1, function) end)))
+    |> Enum.map(&Task.await/1)
+    |> Enum.concat
   end
-
 end
 
 
@@ -86,7 +93,7 @@ defmodule TestEx03 do
   # The following test will only pass if your computer has
   # multiple processors.
   test "pmap actually reduces time" do
-    range = 1..1_000_000
+    range = 1..10_000_000
     # random calculation to burn some cpu
     calc  = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
 
