@@ -44,7 +44,7 @@ defmodule Ex03 do
         5	does it produce the correct results on any valid data
 
       Tested
-      if tests are provided as part of the assignment: 	
+      if tests are provided as part of the assignment:
         5	all pass
 
       Aesthetics
@@ -60,7 +60,29 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection
+    |> splitter(process_count)
+    |> Enum.map(fn chunk -> make_task(chunk, function) end)
+    |> Enum.map(fn task -> Task.await(task) end)
+    |> Enum.concat()
+  end
+
+  # HELPER FUNCTIONS
+
+  defp make_task(list, function) do
+    Task.async(fn -> Enum.map(list, function) end)
+  end
+
+
+  # Splits enumerable into n chunks as evenly as possible
+  defp splitter(list, 1) do
+    [list]
+  end
+
+  defp splitter(list, process_count) do
+    {list1, list2} = Enum.split(list,
+                       round(Enum.count(list)/process_count))
+    [list1 | splitter(list2, process_count - 1)]
   end
 
 end
@@ -96,5 +118,5 @@ defmodule TestEx03 do
     assert result2 == result1
     assert time2 < time1 * 0.8
   end
-  
+
 end
