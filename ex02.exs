@@ -32,15 +32,16 @@ defmodule Test do
   Replace the placeholders with your code.
   """
 
-  # test "counter using an agent" do
-  #   { :ok, counter } = « your code »
-  # 
-  #   value   = « your code »
-  #   assert value == 0
-  # 
-  #   value   = « your code »
-  #   assert value == 1
-  # end
+  test "counter using an agent" do
+    { :ok, counter } = Agent.start(fn -> 0 end)
+  
+    value   = Agent.get(counter, &(&1))
+    assert value == 0
+  
+              Agent.update(counter, &(&1 + 1))
+    value   = Agent.get(counter, &(&1))
+    assert value == 1
+  end
 
   @doc """
   Next, uncomment this test, and add code to the Ex02 module at the
