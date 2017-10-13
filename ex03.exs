@@ -81,7 +81,7 @@
 
   def pmap(collection, process_count, function) do
 
-    
+
   end
 
 end
