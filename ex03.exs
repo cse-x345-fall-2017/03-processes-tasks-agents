@@ -65,12 +65,12 @@ defmodule Ex03 do
   end
 
   defp start_task(collection, func) do
-    Task.async(Enum.map(collection, func))
+    Task.async(fn -> Enum.map(collection, func) end)
   end
 
   def pmap(collection, process_count, func) do
     chunk_collection(collection, process_count) |>
-    Enum.map(&(start_task(&1, func))) |>
+    Enum.map(fn x -> start_task(x, func) end) |>
     Enum.map(&(Task.await(&1))) |>
     Enum.concat
   end
