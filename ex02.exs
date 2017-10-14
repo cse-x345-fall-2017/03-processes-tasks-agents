@@ -23,7 +23,7 @@ defmodule Test do
         2 is the program well laid out,  appropriately using indentation,
           blank lines, vertical alignment
   """
-  
+
 
   @doc """
   First uncomment this test. Here you will be inserting code
@@ -32,15 +32,15 @@ defmodule Test do
   Replace the placeholders with your code.
   """
 
-  # test "counter using an agent" do
-  #   { :ok, counter } = « your code »
-  # 
-  #   value   = « your code »
-  #   assert value == 0
-  # 
-  #   value   = « your code »
-  #   assert value == 1
-  # end
+  test "counter using an agent" do
+     { :ok, counter } = « your code »
+
+     value   = « your code »
+     assert value == 0
+
+     value   = « your code »
+     assert value == 1
+  end
 
   @doc """
   Next, uncomment this test, and add code to the Ex02 module at the
@@ -67,9 +67,3 @@ defmodule Test do
   #   assert Ex02.global_next_value == 2
   # end
 end
-
-
-
-
-
-

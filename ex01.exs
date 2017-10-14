@@ -42,8 +42,8 @@ defmodule Ex01 do
     receive do
       {:next, from} ->
         send from, {:next_is, value}
-        counter(value + 1)
     end
+    counter(value + 1)
   end
 
 end
