@@ -1,6 +1,15 @@
 
 defmodule Ex02 do
 
+def new_counter( init_value \\ 0 ) do
+    Agent.start(fn -> init_value-1 end)
+  end
+
+  def next_value( { _, counter } ) do    
+    Agent.update(counter, &(&1 + 1))
+    Agent.get(counter, &(&1))
+  end
+
 end
 
 ExUnit.start()
@@ -48,11 +57,11 @@ defmodule Test do
   top of this file to make those tests run.
   """
 
-  # test "higher level API interface" do
-  #   count = Ex02.new_counter(5)
-  #   assert  Ex02.next_value(count) == 5
-  #   assert  Ex02.next_value(count) == 6
-  # end
+  test "higher level API interface" do
+    count = Ex02.new_counter(5)
+    assert  Ex02.next_value(count) == 5
+    assert  Ex02.next_value(count) == 6
+  end
 
   @doc """
   Last (for this exercise), we'll create a global counter by adding
