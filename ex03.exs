@@ -64,10 +64,15 @@ defmodule Ex03 do
     Enum.chunk_every(collection, chunk_size)
   end
 
-  def pmap(collection, process_count, func) do
-    chunks = chunk_collection(collection, process_count)
-    pids = Enum.map(chunks, fn chunk -> new_worker(chunk, func, self()) end)
+  defp start_task(collection, func) do
+    Task.async(Enum.map(collection, func))
+  end
 
+  def pmap(collection, process_count, func) do
+    chunk_collection(collection, process_count) |>
+    Enum.map(&(start_task(&1, func))) |>
+    Enum.map(&(Task.await(&1))) |>
+    Enum.concat
   end
 
 end
