@@ -81,7 +81,13 @@
 
   def pmap(collection, process_count, function) do
 
+   items =  Enum.count(collection) / process_count |> Float.ceil |> round
 
+    collection |> Enum.chunk(items, items, [])
+               |> Enum.map(&(Task.async(fn -> Enum.map(&1, function) end)))
+               |> Enum.map(&(Task.await(&1)))
+               |> Enum.concat
+    
   end
 
 end
