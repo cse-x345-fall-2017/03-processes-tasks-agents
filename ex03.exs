@@ -59,6 +59,8 @@ defmodule Ex03 do
 
   """
 
+  # This exists so that we are always guarenteed a chunk size of at least one
+  # Ex:  [1], n = 100
   defp check_zero(0), do: 1
   defp check_zero(x), do: x
 
