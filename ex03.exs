@@ -59,8 +59,12 @@ defmodule Ex03 do
 
   """
 
+  defp check_zero(0), do: 1
+  defp check_zero(x), do: x
+
   defp chunk_collection(collection, n) do
     chunk_size = div(Enum.count(collection),n)
+    chunk_size = check_zero(chunk_size)
     Enum.chunk_every(collection, chunk_size)
   end
 
