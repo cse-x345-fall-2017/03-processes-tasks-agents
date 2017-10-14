@@ -28,43 +28,63 @@ defmodule Ex01 do
   """
   
   def counter(value \\ 0) do
-  end
+    receive do
+      {:next, sender} ->
+        send sender, {:next_is, value}
+    end                                             # end receive
+    value + 1 |> counter             
+  end                                               # end counter
 
-end
+
+
+  def new_counter(value \\ 0) do
+    spawn Ex01, :counter, [value]
+  end                                               # end new_counter
+
+
+
+  def next_value(pid) do
+    send pid, {:next, self()}
+    receive do
+      {:next_is, value} ->
+        value
+    end                                             # end receive
+  end                                               # end next_value
+
+
+end                                                 # end Ex01
 
 ExUnit.start()
 
 defmodule Test do
   use ExUnit.Case
 
-  # Start by uncommenting this test and getting it to pass
   # This test assumes you have a function `counter` that can be spawned
   # and which handles the `{:next, from}` message
 
-  # test "basic message interface" do
-  #   count = spawn Ex01, :counter, []
-  #   send count, { :next, self }
-  #   receive do
-  #     { :next_is, value } ->
-  #       assert value == 0
-  #   end
-  # 
-  #   send count, { :next, self }
-  #   receive do
-  #     { :next_is, value } ->
-  #       assert value == 1
-  #   end
-  # end
+  test "basic message interface" do
+    count = spawn Ex01, :counter, []
+    send count, { :next, self }
+    receive do
+      { :next_is, value } ->
+        assert value == 0
+    end
+   
+    send count, { :next, self }
+    receive do
+      { :next_is, value } ->
+        assert value == 1
+    end
+  end
 
-  # then uncomment this one
   # Now we add two new functions to Ex01 that wrap the use of
   # that counter function, making the overall API cleaner
 
-  # test "higher level API interface" do
-  #   count = Ex01.new_counter(5)
-  #   assert  Ex01.next_value(count) == 5
-  #   assert  Ex01.next_value(count) == 6
-  # end
+  test "higher level API interface" do
+    count = Ex01.new_counter(5)
+    assert  Ex01.next_value(count) == 5
+    assert  Ex01.next_value(count) == 6
+  end
 
 end
 
