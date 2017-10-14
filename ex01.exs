@@ -29,8 +29,8 @@ defmodule Ex01 do
   
   def counter(value \\ 0) do
     receive do
-      {:next, sender} ->
-        send sender, {:next_is, value}
+      { :next, sender } ->
+        send sender, { :next_is, value }
     end                                             # end receive
     value + 1 |> counter             
   end                                               # end counter
@@ -44,9 +44,9 @@ defmodule Ex01 do
 
 
   def next_value(pid) do
-    send pid, {:next, self()}
+    send pid, { :next, self() }
     receive do
-      {:next_is, value} ->
+      { :next_is, value } ->
         value
     end                                             # end receive
   end                                               # end next_value
