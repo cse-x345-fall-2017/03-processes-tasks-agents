@@ -1,23 +1,4 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    defmodule Ex03 do
 
   @moduledoc """
@@ -87,7 +68,7 @@
                |> Enum.map(&(Task.async(fn -> Enum.map(&1, function) end)))
                |> Enum.map(&(Task.await(&1)))
                |> Enum.concat
-    
+
   end
 
 end
