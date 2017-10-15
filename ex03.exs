@@ -59,27 +59,6 @@ defmodule Ex03 do
 
   """
   
-  def chunk_every(_, 1), do: [[2,3,4,5,6,7,8,9,10,11]]
-  def chunk_every(_, 5), do: [[2,3,4,5,6],[7,8,9,10,11]]
-  def chunk_every(_, 3), do: [[2,3,4],[5,6,7],[8,9,10],[11]]
-  
-  #def process_chunks(list)
-  
-  #def restore_list(task_list)
-  #  task_list
-  #  Enum.at()
-  
-  #def concat_list(result_list, task) do
-  #  task
-  #  |> Task.await()
-  #  |> Enum.concat([x, y])
-  #  |> concat_list
-  
-  #def spawn_process(collection, function, index != nil) do
-  #  Enum.at(collection, index)
-  #  Task.async(
-  #  )
-  
   def chunk_size(collection_count, process_count) do
     collection_count / process_count
     |> Float.ceil(0)
@@ -91,32 +70,6 @@ defmodule Ex03 do
     chunk = chunk_size(collection_count, process_count)
     Enum.chunk_every(collection, chunk)
   end
-    
-#  def process_chunks(collection, function) do
-#    collection
-#    |> process_chunk(function, 0, [])
-#    |> Enum.at(index, :none)
-#  end
-  
-#  def process_chunk(collection, function, collection_index, task_list) do
-#    collection
-#    |> Enum.at(collection_index, :none)
-#    |> Task.async(perform_task(collection, function))
-#    |> process_chunk(collection, function, collection_index + 1)
-  
-#  def spawn_process(collection, function) do
-#    collection
-#    |> Task.async(perform_task(chunk, function)) #process chunk in separate process
-#    |> process_chunk(collection, function, index + 1) #setup next chunk to be processed
-
-  #def spawn_process_l2(_, _, _, :none, task_list)
-  #  task_list
-  #end
-
-  #def spawn_process_l2(chunk, collection, function, index, task_list)
-  #  task = Task.async(fn -> perform_task(chunk, function) end) #process chunk in separate process
-  #  spawn_process(collection, function, index + 1, task_list ++ [task]) #setup next chunk to be processed
-  #end
 
   def spawn_process(_, _, list_length, task_list, list_length) do
     task_list
@@ -124,7 +77,6 @@ defmodule Ex03 do
     
   def spawn_process(collection, function, index, task_list, list_length) do
     chunk = Enum.at(collection, index, :none) #get chunk
-    IO.inspect(chunk)
     task = Task.async(fn -> perform_task(chunk, function) end) #process chunk in separate process
     spawn_process(collection, function, index + 1, task_list ++ [task], list_length) #setup next chunk to be processed
   end
@@ -145,16 +97,10 @@ defmodule Ex03 do
   
   def wait_on_process(list_length, task_list, index, result_list) do
     chunk = Enum.at(task_list, index, :none)
-    IO.inspect(list_length)
-    IO.inspect(chunk)
     result = Task.await(chunk)
-    #IO.inspect(result)
-    #IO.inspect("Wait on process")
-    #IO.inspect(list_length)
     new_list = concat_list(result_list, result)
     wait_on_process(list_length, task_list, index + 1, new_list)
   end
-    
   
   def wait_on_processes(task_list) do
     length(task_list)
@@ -179,12 +125,9 @@ defmodule Ex03 do
     collection
     |> break_into_chunks(process_count)
     |> process_chunks(function)
-    #Enum.map(collection, function)
   end
 
 end
-    #map = Enum.map(collection, function)
-    #IO.inspect(map)
 
 ExUnit.start
 defmodule TestEx03 do
