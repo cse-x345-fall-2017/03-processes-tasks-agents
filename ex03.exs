@@ -60,19 +60,35 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    ceil_div = fn dividend, divisor -> Integer.floor_div(dividend, divisor) + 1 end
+    ceil_div = fn dividend, divisor -> 
+                Integer.floor_div(dividend, divisor) + 1
+               end
 
     chunk_size = Enum.count(collection) |> ceil_div.(process_count)
-
-    chunks = Enum.chunk_every(collection, chunk_size)
-    assign(chunks, function) |> Enum.concat()
+    assign_tasks = fn chunk -> 
+                     Task.async(Enum, :map, [ chunk, function ])
+                   end
+    
+    gather_results = fn task -> 
+                       Task.await(task) 
+                     end
+    
+    Enum.chunk_every(collection, chunk_size)
+      |> Enum.map(assign_tasks)
+      |> Enum.map(gather_results)
+      |> Enum.concat()
   end
 
-  def assign( [ chunk | rest ], function) do
-    map_current = Task.async( fn -> Enum.map(chunk, function) end )
-    [ Task.await(map_current) | assign(rest, function) ]
-  end
-  def assign([], _function), do: []
+  # def assign( [ chunk | rest ], function) do
+  #   map_current = Task.async( fn -> Enum.map(chunk, function) end )
+  #   [ Task.await(map_current) | assign(rest, function) ]
+  # end
+  # def assign([], _function), do: []
+
+  # def distribute(chunk) do
+  #   Task.async( fn -> Enum.map(fu))
+  # end
+  
 end
 
 
@@ -96,7 +112,7 @@ defmodule TestEx03 do
   # The following test will only pass if your computer has
   # multiple processors.
   test "pmap actually reduces time" do
-    range = 1..1_000_000
+    range = 1..10_000_000
     # random calculation to burn some cpu
     calc  = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
 
