@@ -26,10 +26,15 @@ defmodule Ex01 do
         2 is the program well laid out,  appropriately using indentation,
           blank lines, vertical alignment
   """
-  
-  def counter(value \\ 0) do
-  end
 
+  def counter(value \\ 0) do
+    receive do
+      { :next, from } ->
+        send from, {:next_is, value }
+        counter(value + 1)
+    end
+  end
+  
 end
 
 ExUnit.start()
@@ -41,20 +46,20 @@ defmodule Test do
   # This test assumes you have a function `counter` that can be spawned
   # and which handles the `{:next, from}` message
 
-  # test "basic message interface" do
-  #   count = spawn Ex01, :counter, []
-  #   send count, { :next, self }
-  #   receive do
-  #     { :next_is, value } ->
-  #       assert value == 0
-  #   end
-  # 
-  #   send count, { :next, self }
-  #   receive do
-  #     { :next_is, value } ->
-  #       assert value == 1
-  #   end
-  # end
+  test "basic message interface" do
+    count = spawn Ex01, :counter, []
+    send count, { :next, self() }
+    receive do
+      { :next_is, value } ->
+        assert value == 0
+    end
+
+    send count, { :next, self() }
+    receive do
+      { :next_is, value } ->
+        assert value == 1
+    end
+  end
 
   # then uncomment this one
   # Now we add two new functions to Ex01 that wrap the use of
@@ -67,9 +72,3 @@ defmodule Test do
   # end
 
 end
-
-
-
-
-
-
