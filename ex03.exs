@@ -68,8 +68,6 @@ defmodule Ex03 do
 
 
 
-
-
   # Helper function for pmap
   defp get_chunk(collection, process_count) do
     collection
@@ -84,10 +82,8 @@ defmodule Ex03 do
   end                                                       # end reverse_chunk
 
 
-
   defp tasks_spawn(chunked_collection, function) do
     Task.async(fn -> Enum.map(chunked_collection, function) end)
-  
   end                                                       # end tasks_spawn
 
 
