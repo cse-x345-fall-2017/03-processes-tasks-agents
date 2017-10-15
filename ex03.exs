@@ -82,7 +82,6 @@ defmodule Ex03 do
   end
   
   def spawn_processes(collection, function, start_index, task_list) do
-    collection
     list_length = length(collection)
     spawn_process(collection, function, start_index, task_list, list_length)
   end
@@ -117,7 +116,7 @@ defmodule Ex03 do
     Enum.map(collection, function)
   end
   
-  def process_chunk(collection, function, :none, task_list) do
+  def process_chunk(_, _, :none, task_list) do
     task_list #return task list
   end
 
