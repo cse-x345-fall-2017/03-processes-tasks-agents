@@ -44,7 +44,7 @@ defmodule Ex03 do
         5	does it produce the correct results on any valid data
 
       Tested
-      if tests are provided as part of the assignment: 	
+      if tests are provided as part of the assignment:
         5	all pass
 
       Aesthetics
@@ -59,8 +59,32 @@ defmodule Ex03 do
 
   """
 
-  def pmap(collection, process_count, function) do
-    « your code here »
+  # This exists so that we are always guarenteed a chunk size of at least one
+  # Ex:  [1], n = 100
+  #   div 1, 100 -> 0
+  #   chunk_every with 0 fails
+  defp check_zero(0), do: 1
+  defp check_zero(x), do: x
+
+  defp chunk_collection(collection, n) do
+    chunk_size = div(Enum.count(collection),n) |> check_zero
+    Enum.chunk_every(collection, chunk_size)
+  end
+
+  defp start_task(collection, func) do
+    Task.async(fn -> Enum.map(collection, func) end)
+  end
+
+  # Does this make sense to still run when pcount > collection size?
+  # I see an argument here on both sides - if it's a user facing application
+  # pmap should still work with any size array and any processor number
+  # if it's a developer tool - i think it's fair to assume developers wont pmap
+  # a single element array with 1000 processors.
+  def pmap(collection, process_count, func) do
+    chunk_collection(collection, process_count) |>
+    Enum.map(fn x -> start_task(x, func) end) |>
+    Enum.map(&(Task.await(&1))) |>
+    Enum.concat
   end
 
 end
@@ -96,5 +120,5 @@ defmodule TestEx03 do
     assert result2 == result1
     assert time2 < time1 * 0.8
   end
-  
+
 end
