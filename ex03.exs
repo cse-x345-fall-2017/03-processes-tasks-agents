@@ -59,8 +59,18 @@ defmodule Ex03 do
 
   """
 
+  defp split_check_size(n_splits, len) when n_splits > len do
+    raise ArgumentError, message: """
+      n_splits can't be greater than the length of the collection
+    """
+  end
+  defp split_check_size(_, _) do
+    :ok
+  end
+
   def split(collection, n_splits) do
     len = Enum.count collection
+    split_check_size(n_splits, len)
     chunk_size = div(len, n_splits)
     Enum.chunk_every(collection, chunk_size)
   end
