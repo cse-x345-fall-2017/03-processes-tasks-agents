@@ -59,8 +59,32 @@ defmodule Ex03 do
 
   """
 
+  defp split_check_size(n_splits, len) when n_splits > len do
+    raise ArgumentError, message: """
+      n_splits can't be greater than the length of the collection
+    """
+  end
+  defp split_check_size(_, _) do
+    :ok
+  end
+
+  def split(collection, n_splits) do
+    len = Enum.count collection
+    split_check_size(n_splits, len)
+    chunk_size = div(len, n_splits)
+    Enum.chunk_every(collection, chunk_size)
+  end
+
+  def task_map(collection, function) do
+    Task.async(Enum, :map, [collection, function])
+  end
+
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection
+    |> split(process_count)
+    |> Enum.map(fn chunk -> task_map(chunk, function) end)
+    |> Enum.map(&Task.await/1)
+    |> Enum.concat
   end
 
 end
