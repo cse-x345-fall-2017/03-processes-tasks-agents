@@ -1,13 +1,22 @@
 
 defmodule Ex02 do
 
-def new_counter( init_value \\ 0 ) do
-    Agent.start(fn -> init_value-1 end)
+  @global_state __MODULE__
+
+  def new_counter( init_value \\ 0 ) do
+    Agent.start(fn -> init_value end)
   end
 
   def next_value( { _, counter } ) do    
-    Agent.update(counter, &(&1 + 1))
-    Agent.get(counter, &(&1))
+    Agent.get_and_update(counter, &{ &1, &1+1 })
+  end
+
+  def new_global_counter( init_value \\ 0 ) do
+    Agent.start_link(fn -> init_value end, name: @global_state)
+  end
+
+  def global_next_value() do    
+    Agent.get_and_update(@global_state, &{ &1, &1+1 })
   end
 
 end
@@ -44,11 +53,10 @@ defmodule Test do
   test "counter using an agent" do
     { :ok, counter } = Agent.start(fn -> 0 end)
   
-    value   = Agent.get(counter, &(&1))
+    value   = Agent.get_and_update(counter, &{ &1, &1+1 })
     assert value == 0
   
-              Agent.update(counter, &(&1 + 1))
-    value   = Agent.get(counter, &(&1))
+    value   = Agent.get_and_update(counter, &{ &1, &1+1 })
     assert value == 1
   end
 
@@ -70,12 +78,12 @@ defmodule Test do
   that agent into calls to `global_next_value`?
   """
 
-  # test "global counter" do
-  #   Ex02.new_global_counter
-  #   assert Ex02.global_next_value == 0
-  #   assert Ex02.global_next_value == 1
-  #   assert Ex02.global_next_value == 2
-  # end
+  test "global counter" do
+    Ex02.new_global_counter
+    assert Ex02.global_next_value == 0
+    assert Ex02.global_next_value == 1
+    assert Ex02.global_next_value == 2
+  end
 end
 
 

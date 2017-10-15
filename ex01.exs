@@ -28,7 +28,7 @@ defmodule Ex01 do
   """
   
   def new_counter(init_value) do
-    spawn Ex01, :counter, [ init_value ]
+    spawn __MODULE__, :counter, [ init_value ]
   end
 
   def next_value(counter_pid) do
