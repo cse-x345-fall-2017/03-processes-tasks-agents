@@ -59,8 +59,23 @@ defmodule Ex03 do
 
   """
 
+  #spawning process helper method
+  def spawn_process(chunk, function) do
+   Task.async(Enum, :map, [chunk, function]) 
+  end
+
+  #split helper method
+  def collection_split(collection, number) do
+    length_col = Enum.count(collection)
+    chunk_size = div(length_col, number)
+    Enum.chunk_every(collection, chunk_size)
+  end
+
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection_split(collection, process_count)
+    |> Enum.map(&spawn_process(&1, function))
+    |> Enum.map(&(Task.await(&1)))
+    |> Enum.concat
   end
 
 end
