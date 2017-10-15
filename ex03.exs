@@ -66,27 +66,13 @@ defmodule Ex03 do
 
     collection 
     |> Enum.chunk(size,size, [])
-    |> task_create(process_count - 1, function, [])
-    |> task_await(process_count - 1, Enum.drop_every(collection,1))
+    #|> task_create(process_count - 1, function, [])
+    |> Enum.map(fn(chunk) -> 
+          Task.async(fn -> Enum.map(chunk, function) end) end)
+    #|> task_await(process_count - 1, Enum.drop_every(collection,1))
+    |> Enum.map(fn(task) -> Task.await(task) end)
+    |> Enum.concat()
 
-  end
-
-  defp task_create(_, -1, _, pids), do: pids
-  defp task_create(divided, part_count, function, pids) do
-    part = Enum.fetch!(divided,part_count)
-
-    added = pids
-    |> Enum.concat([Task.async(fn -> Enum.map(part, function) end)])
-    
-    task_create(divided, part_count - 1, function, added)
-  end
-
-  defp task_await(_, -1, done), do: done
-  defp task_await(pids, itr, fill) do
-    added = fill
-    |> Enum.concat(Task.await(Enum.fetch!(pids,itr)))
-
-    task_await(pids, itr - 1, added)
   end
 end
 
@@ -111,7 +97,7 @@ defmodule TestEx03 do
   # The following test will only pass if your computer has
   # multiple processors.
   test "pmap actually reduces time" do
-    range = 1..1_000_000
+    range = 1..11_000_000
     # random calculation to burn some cpu
     calc  = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
 
