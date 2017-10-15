@@ -8,7 +8,7 @@ defmodule Ex02 do
 
 
   def next_value(pid) do
-    Agent.get_and_update(pid, fn value -> { value, value + 1 } end)
+    Agent.get_and_update(pid, &{ &1, &1 + 1 })
   end                                                                 # end next_value
 
 
@@ -18,7 +18,7 @@ defmodule Ex02 do
 
 
   def global_next_value do
-    Agent.get_and_update(__MODULE__, fn value -> { value, value + 1 } end)
+    Agent.get_and_update(__MODULE__, &{ &1, &1 + 1 })
   end                                                                 # end global_next_value
 
 

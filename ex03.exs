@@ -60,10 +60,41 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    get_chunk(collection, process_count)
+    |> Enum.map(fn chunked_collection -> tasks_spawn(chunked_collection, function) end)
+    |> Enum.map(fn spawned_task -> Task.await(spawned_task) end)
+    |> Enum.concat
+  end                                                       # end pmap
+
+
+
+
+
+  # Helper function for pmap
+  defp get_chunk(collection, process_count) do
+    collection
+    |> Enum.count
+    |> div(process_count)
+    |> reverse_chunk(collection)
+  end                                                       # end get_chunk
+
+
+  defp reverse_chunk(size, collection) do
+    Enum.chunk_every(collection, size)
+  end                                                       # end reverse_chunk
+
+
+
+  defp tasks_spawn(chunked_collection, function) do
+    Task.async(fn -> Enum.map(chunked_collection, function) end)
+  
   end
 
-end
+
+
+
+
+end                                                         # end Ex03
 
 
 ExUnit.start
