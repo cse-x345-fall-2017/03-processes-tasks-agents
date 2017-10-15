@@ -61,6 +61,8 @@ defmodule Ex03 do
 
   # This exists so that we are always guarenteed a chunk size of at least one
   # Ex:  [1], n = 100
+  #   div 1, 100 -> 0
+  #   chunk_every with 0 fails
   defp check_zero(0), do: 1
   defp check_zero(x), do: x
 
@@ -73,6 +75,11 @@ defmodule Ex03 do
     Task.async(fn -> Enum.map(collection, func) end)
   end
 
+  # Does this make sense to still run when pcount > collection size?
+  # I see an argument here on both sides - if it's a user facing application
+  # pmap should still work with any size array and any processor number
+  # if it's a developer tool - i think it's fair to assume developers wont pmap
+  # a single element array with 1000 processors.
   def pmap(collection, process_count, func) do
     chunk_collection(collection, process_count) |>
     Enum.map(fn x -> start_task(x, func) end) |>

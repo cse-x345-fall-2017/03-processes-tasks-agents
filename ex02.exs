@@ -13,7 +13,7 @@ defmodule Ex02 do
   end
 
   def new_global_counter(value \\ 0) do
-    {:ok, pid} = Agent.start_link(fn -> value end, name: @global_counter)
+    Agent.start_link(fn -> value end, name: @global_counter)
   end
 
   def global_next_value() do
