@@ -66,10 +66,8 @@ defmodule Ex03 do
 
     collection 
     |> Enum.chunk(size,size, [])
-    #|> task_create(process_count - 1, function, [])
     |> Enum.map(fn(chunk) -> 
           Task.async(fn -> Enum.map(chunk, function) end) end)
-    #|> task_await(process_count - 1, Enum.drop_every(collection,1))
     |> Enum.map(fn(task) -> Task.await(task) end)
     |> Enum.concat()
 
