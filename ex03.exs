@@ -60,7 +60,14 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    sizeOfChunk = Enum.count(collection) / process_count
+    
+    collection
+    |> Enum.chunk_every(collection, sizeOfChunk)
+    |> Enum.map( fn eachChunk -> Task.async(fn -> Enum.map(eachChunk, function) end) end)
+    |> Enum.map(&Task.await/1)
+    |> Enum.concat
+    
   end
 
 end
