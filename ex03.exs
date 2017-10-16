@@ -76,6 +76,28 @@ defmodule Ex03 do
     |> Enum.concat
   end
 
+  # test speed of pmap on different process sizes
+  # Test Results: (Macbook Pro 2016, Intel 6700HQ 4-core processor)
+
+  # process_count | time
+  # 1 process     | 7763984
+  # 2 processes   | 6270525
+  # 4 processes   | 4590927
+  # 8 processes   | 4470851
+
+  # We can see that pmap using Tasks takes advantage of the 4 cores and
+  # preforms the map function much more quickly with more processes
+  def test_pmap() do
+    range = 1..10_000_000
+    # random calculation to burn some cpu
+    calc = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
+
+    # { time1, result1 } = :timer.tc(fn -> pmap(range, 1, calc) end)
+    # { time2, result2 } = :timer.tc(fn -> pmap(range, 2, calc) end)
+    { time4, result4 } = :timer.tc(fn -> pmap(range, 4, calc) end)
+    # { time8, result8 } = :timer.tc(fn -> pmap(range, 8, calc) end)
+  end
+
 end
 
 
