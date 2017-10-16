@@ -58,13 +58,81 @@ defmodule Ex03 do
         5 elegant use of language features or libraries
 
   """
+  
+  defp await_task(task, result_list) do
+    result = Task.await(task)
+    Enum.concat(result_list, result)
+  end
+
+  defp break_into_chunks(collection, process_count) do
+    collection
+    |> Enum.count
+    |> chunk_list(process_count, collection)
+  end
+  
+  defp chunk_list(collection_count, process_count, collection) do
+    count = chunk_size(collection_count, process_count)
+    Enum.chunk_every(collection, count)
+  end
+
+  defp chunk_size(collection_count, process_count) do
+    collection_count / process_count
+    |> Float.ceil(0)
+    |> round
+  end
+
+  defp perform_task(collection, function) do
+    Enum.map(collection, function)
+  end
+  
+  defp process_chunks(collection, function) do
+    collection
+    |> spawn_processes(function)  #returns a list of tasks to wait on
+    |> wait_on_processes          #waits on task list in order and concats the results
+  end
+
+  defp spawn_process(task_list, collection, function, count, count) when is_list(collection) and is_function(function) do
+    task_list
+  end
+    
+  defp spawn_process(task_list, collection, function, index, list_length) do
+    Enum.at(collection, index)
+    |> start_task(function, task_list)
+    |> spawn_process(collection, function, index + 1, list_length)
+  end
+  
+  defp spawn_processes(collection, function) do
+    list_length = length(collection)
+    spawn_process([], collection, function, 0, list_length)
+  end
+  
+  defp start_task(chunk, function, task_list) do
+    new_task = Task.async(fn -> perform_task(chunk, function) end)
+    task_list ++ [new_task]
+  end
+
+  defp wait_on_process(result_list, task_list, count, count) when is_list(task_list) do
+    result_list
+  end
+
+  defp wait_on_process(result_list, task_list, index, list_length) do
+    Enum.at(task_list, index)
+    |> await_task(result_list)
+    |> wait_on_process(task_list, index + 1, list_length)
+  end
+  
+  defp wait_on_processes(task_list) do
+    count = length(task_list)
+    wait_on_process([], task_list, 0, count)
+  end
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection
+    |> break_into_chunks(process_count)
+    |> process_chunks(function)
   end
 
 end
-
 
 ExUnit.start
 defmodule TestEx03 do
