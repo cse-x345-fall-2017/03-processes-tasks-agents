@@ -44,7 +44,7 @@ defmodule Ex03 do
         5	does it produce the correct results on any valid data
 
       Tested
-      if tests are provided as part of the assignment: 	
+      if tests are provided as part of the assignment:
         5	all pass
 
       Aesthetics
@@ -58,9 +58,21 @@ defmodule Ex03 do
         5 elegant use of language features or libraries
 
   """
+  defp start_task(collection, function) do
+    Task.async(fn -> Enum.map(collection, function) end)
+  end
+
+  defp divide_collection(collection, process_count) do
+    size = div(Enum.count(collection), process_count)
+    Enum.chunk_every(collection, size)
+  end
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    divide_collection(collection, process_count) |>
+    Enum.map(fn i -> start_task(i, function) end) |>
+    Enum.map(fn i -> Task.await(i) end) |>
+    Enum.concat()
+
   end
 
 end
@@ -96,5 +108,5 @@ defmodule TestEx03 do
     assert result2 == result1
     assert time2 < time1 * 0.8
   end
-  
+
 end
