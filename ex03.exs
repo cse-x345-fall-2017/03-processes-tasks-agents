@@ -59,8 +59,21 @@ defmodule Ex03 do
 
   """
 
+  defp divide_collection(collection, process_count) do
+    collection_size = Enum.count(collection)
+    chunk_size = div(collection_size, process_count)
+    Enum.chunk_every(collection, chunk_size)
+  end
+
+  defp start_task(baby_collection, function) do
+    Task.async(Enum, :map, [baby_collection, function]) 
+  end
+
   def pmap(collection, process_count, function) do
-    « your code here »
+    divide_collection(collection, process_count)
+    |> Enum.map( &(start_task(&1, function)) )
+    |> Enum.map( &(Task.await(&1)) )
+    |> Enum.concat
   end
 
 end
