@@ -59,8 +59,43 @@ defmodule Ex03 do
 
   """
 
+  defp divide_collection(collection, process_count) do
+    collection_size = Enum.count(collection)
+    chunk_size = div(collection_size, process_count)
+    Enum.chunk_every(collection, chunk_size)
+  end
+
+  defp start_task(baby_collection, function) do
+    Task.async(Enum, :map, [baby_collection, function]) 
+  end
+
   def pmap(collection, process_count, function) do
-    « your code here »
+    divide_collection(collection, process_count)
+    |> Enum.map( &(start_task(&1, function)) )
+    |> Enum.map( &(Task.await(&1)) )
+    |> Enum.concat
+  end
+
+  # test speed of pmap on different process sizes
+  # Test Results: (Macbook Pro 2016, Intel 6700HQ 4-core processor)
+
+  # process_count | time
+  # 1 process     | 7763984
+  # 2 processes   | 6270525
+  # 4 processes   | 4590927
+  # 8 processes   | 4470851
+
+  # We can see that pmap using Tasks takes advantage of the 4 cores and
+  # preforms the map function much more quickly with more processes
+  def test_pmap() do
+    range = 1..10_000_000
+    # random calculation to burn some cpu
+    calc = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
+
+    # { time1, result1 } = :timer.tc(fn -> pmap(range, 1, calc) end)
+    # { time2, result2 } = :timer.tc(fn -> pmap(range, 2, calc) end)
+    { time4, result4 } = :timer.tc(fn -> pmap(range, 4, calc) end)
+    # { time8, result8 } = :timer.tc(fn -> pmap(range, 8, calc) end)
   end
 
 end
