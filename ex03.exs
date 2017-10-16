@@ -59,65 +59,71 @@ defmodule Ex03 do
 
   """
   
-  def chunk_size(collection_count, process_count) do
+  defp await_task(task, result_list) do
+    result = Task.await(task)
+    Enum.concat(result_list, result)
+  end
+
+  defp break_into_chunks(collection, process_count) do
+    collection
+    |> Enum.count
+    |> chunk_list(process_count, collection)
+  end
+  
+  defp chunk_list(collection_count, process_count, collection) do
+    count = chunk_size(collection_count, process_count)
+    Enum.chunk_every(collection, count)
+  end
+
+  defp chunk_size(collection_count, process_count) do
     collection_count / process_count
     |> Float.ceil(0)
     |> round
   end
-  
-  def break_into_chunks(collection, process_count) do
-    collection_count = Enum.count(collection)
-    chunk = chunk_size(collection_count, process_count)
-    Enum.chunk_every(collection, chunk)
-  end
 
-  def spawn_process(_, _, list_length, task_list, list_length) do
-    task_list
-  end
-    
-  def spawn_process(collection, function, index, task_list, list_length) do
-    chunk = Enum.at(collection, index, :none) #get chunk
-    task = Task.async(fn -> perform_task(chunk, function) end) #process chunk in separate process
-    spawn_process(collection, function, index + 1, task_list ++ [task], list_length) #setup next chunk to be processed
-  end
-  
-  def spawn_processes(collection, function, start_index, task_list) do
-    list_length = length(collection)
-    spawn_process(collection, function, start_index, task_list, list_length)
-  end
-  
-  def concat_list(result, task_list) do
-    result ++ task_list
-  end
-
-  def wait_on_process(index, _, index, result_list) do
-    result_list
-  end
-  
-  def wait_on_process(list_length, task_list, index, result_list) do
-    chunk = Enum.at(task_list, index, :none)
-    result = Task.await(chunk)
-    new_list = concat_list(result_list, result)
-    wait_on_process(list_length, task_list, index + 1, new_list)
-  end
-  
-  def wait_on_processes(task_list) do
-    length(task_list)
-    |> wait_on_process(task_list, 0, [])
-  end
-  
-  def process_chunks(collection, function) do
-    collection
-    |> spawn_processes(function, 0, []) #returns a list of tasks to wait on
-    |> wait_on_processes #waits on task list in order and concats the results
-  end
-
-  def perform_task(collection, function) do
+  defp perform_task(collection, function) do
     Enum.map(collection, function)
   end
   
-  def process_chunk(_, _, :none, task_list) do
-    task_list #return task list
+  defp process_chunks(collection, function) do
+    collection
+    |> spawn_processes(function)  #returns a list of tasks to wait on
+    |> wait_on_processes          #waits on task list in order and concats the results
+  end
+
+  defp spawn_process(task_list, collection, function, count, count) when is_list(collection) and is_function(function) do
+    task_list
+  end
+    
+  defp spawn_process(task_list, collection, function, index, list_length) do
+    Enum.at(collection, index)
+    |> start_task(function, task_list)
+    |> spawn_process(collection, function, index + 1, list_length)
+  end
+  
+  defp spawn_processes(collection, function) do
+    list_length = length(collection)
+    spawn_process([], collection, function, 0, list_length)
+  end
+  
+  defp start_task(chunk, function, task_list) do
+    new_task = Task.async(fn -> perform_task(chunk, function) end)
+    task_list ++ [new_task]
+  end
+
+  defp wait_on_process(result_list, task_list, count, count) when is_list(task_list) do
+    result_list
+  end
+
+  defp wait_on_process(result_list, task_list, index, list_length) do
+    Enum.at(task_list, index)
+    |> await_task(result_list)
+    |> wait_on_process(task_list, index + 1, list_length)
+  end
+  
+  defp wait_on_processes(task_list) do
+    count = length(task_list)
+    wait_on_process([], task_list, 0, count)
   end
 
   def pmap(collection, process_count, function) do
