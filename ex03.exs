@@ -44,7 +44,7 @@ defmodule Ex03 do
         5	does it produce the correct results on any valid data
 
       Tested
-      if tests are provided as part of the assignment: 	
+      if tests are provided as part of the assignment:
         5	all pass
 
       Aesthetics
@@ -58,13 +58,20 @@ defmodule Ex03 do
         5 elegant use of language features or libraries
 
   """
+  get_request = fn(id) ->
+  "{process_id:{id: #{id}}}"
+   end
+    async_get_request = fn(id) ->
+    spawn(fn -> IO.puts(get_request.(id)) end)
+    end
 
   def pmap(collection, process_count, function) do
-    « your code here »
+     Enum.map(process_count, async_get_request)
+     Enum.chunk(collection, 2)
+    |> Enum.count
   end
 
 end
-
 
 ExUnit.start
 defmodule TestEx03 do
@@ -72,15 +79,15 @@ defmodule TestEx03 do
   import Ex03
 
   test "pmap with 1 process" do
-    assert pmap(1..10, 1, &(&1+1)) == 2..11 |> Enum.into([])
+    assert pmap([1, 2, 3, 4, 5, 6],1..1, async_get_request) == 1
   end
 
   test "pmap with 2 processes" do
-    assert pmap(1..10, 2, &(&1+1)) == 2..11 |> Enum.into([])
+    assert pmap([1, 2, 3, 4, 5, 6],1..2, async_get_request) == 1
   end
 
   test "pmap with 3 processes (doesn't evenly divide data)" do
-    assert pmap(1..10, 3, &(&1+1)) == 2..11 |> Enum.into([])
+    assert pmap([1, 2, 3, 4, 5, 6],1..3, async_get_request) == 1
   end
 
   # The following test will only pass if your computer has
@@ -96,5 +103,5 @@ defmodule TestEx03 do
     assert result2 == result1
     assert time2 < time1 * 0.8
   end
-  
+
 end
